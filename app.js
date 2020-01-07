@@ -22,7 +22,7 @@ mongoClient.connect(function(err, client){
 
 const formatResponse = dt => {
     let {current} = dt;
-    return `<weather_start>${current.wind_speed};${current.temperature};${current.pressure};${current.humidity};${current.cloudcover};${current.feelslike};${current.wind_degree};${current.wind_dir};${current.weather_descriptions.join(',')}<weather_end>`
+    return `~${current.wind_speed};${current.temperature};${current.pressure};${current.humidity};${current.cloudcover};${current.feelslike};${current.wind_degree};${current.wind_dir};${current.weather_descriptions.join(',')}~`
 };
 
 app.get('/getWeather', (req, resp, next) => {
@@ -34,10 +34,11 @@ app.get('/getWeather', (req, resp, next) => {
         if (res.length > 0) {
             dt = res[0];
             console.log(dt);
-            isLoadFromCache =  (curDate.getTime() - new Date(dt.logDate)) / 1000 / 60 / 60 / 2 <= 1;
+            isLoadFromCache =  (curDate - new Date(dt.logDate)) / 1000 / 60 / 60  <= 0.5;
         };
         if (isLoadFromCache) {
             console.log('reading from cache');
+            console.log(formatResponse(dt.dt));
             resp.write(formatResponse(dt.dt));
             resp.end();
         } else {
